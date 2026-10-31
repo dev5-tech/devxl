@@ -1146,7 +1146,7 @@
     display:flex;
     gap:10px;
     flex-wrap:wrap;
-    margin-bottom:8px;
+    margin-bottom:24px;
   }
   .platform-pill{
     display:inline-flex;
@@ -1188,6 +1188,16 @@
   @media (max-width:600px){ .reviews-grid{grid-template-columns:1fr;} }
 
   .review-card[data-hidden="true"]{display:none;}
+  .reviews-empty{
+    grid-column:1 / -1;
+    text-align:center;
+    padding:44px 20px;
+    color:var(--light);
+    background:var(--bg-2);
+    border:1px dashed var(--glass-border);
+    border-radius:14px;
+    font-size:0.95rem;
+  }
   .reviews-toggle-wrap{
     display:flex;
     justify-content:center;
@@ -1272,8 +1282,17 @@
     flex-shrink:0;
   }
   .contact-icon svg{width:20px; height:20px; color:var(--bg);}
-  .contact-info-item strong{display:block; font-size:0.92rem;}
-  .contact-info-item span{color:var(--light); font-size:0.84rem;}
+  a.contact-info-item{color:inherit; text-decoration:none;}
+  .contact-link-text{
+    color:var(--light);
+    font-size:0.95rem;
+    overflow-wrap:anywhere;
+    transition:color .2s ease;
+  }
+  a.contact-info-item:hover .contact-link-text,
+  a.contact-info-item:focus-visible .contact-link-text{color:var(--blue);}
+  a.contact-info-item:hover .contact-icon{transform:translateY(-2px); box-shadow:0 8px 20px rgba(0,212,255,0.3);}
+  .contact-icon{transition:transform .2s ease, box-shadow .2s ease;}
 
   .contact-form{
     background:var(--bg-2);
@@ -1343,6 +1362,18 @@
     margin-top:16px;
   }
   .form-success.show{display:flex;}
+  .form-fail{
+    display:none;
+    background:rgba(255,97,97,0.1);
+    border:1px solid rgba(255,97,97,0.35);
+    color:#ff9a9a;
+    padding:14px 16px;
+    border-radius:10px;
+    font-size:0.88rem;
+    margin-top:16px;
+  }
+  .form-fail.show{display:block;}
+  .hp-field{position:absolute; left:-9999px; width:1px; height:1px; overflow:hidden;}
 
   /* ============ FOOTER ============ */
   footer{
@@ -1546,11 +1577,14 @@
 (function(){
   var splash = document.getElementById('splashScreen');
   if(!splash) return;
-  if(sessionStorage.getItem('devexcel_splash_shown')){
+  // Storage can be blocked (some in-app browsers / privacy modes). Never let that trap the visitor behind the splash.
+  var seen = false;
+  try{ seen = !!sessionStorage.getItem('devexcel_splash_shown'); }catch(e){}
+  if(seen){
     splash.style.display = 'none';
     return;
   }
-  sessionStorage.setItem('devexcel_splash_shown', '1');
+  try{ sessionStorage.setItem('devexcel_splash_shown', '1'); }catch(e){}
   document.body.classList.add('splash-active');
   function dismiss(){
     if(splash.classList.contains('hide')) return;
@@ -1868,8 +1902,10 @@
           <textarea id="rtext" placeholder="Tell others about your experience..."></textarea>
           <span class="form-error">Please write a few words about your experience.</span>
         </div>
+        <div class="hp-field" aria-hidden="true"><label for="rcompany">Company</label><input type="text" id="rcompany" name="company" tabindex="-1" autocomplete="off"></div>
         <button type="submit" class="btn btn-primary form-submit">Submit Review</button>
-        <div class="form-success" id="reviewSuccess">✓ Thanks for your review! It's now live below.</div>
+        <div class="form-success" id="reviewSuccess">✓ Thanks for your review!</div>
+        <div class="form-fail" id="reviewError" role="alert">Sorry, your review couldn’t be sent right now. Please try again in a moment.</div>
       </form>
     </div>
   </div>
@@ -1883,22 +1919,22 @@
     <p class="section-sub reveal">Tell me a bit about your project and I'll get back to you shortly.</p>
     <div class="contact-grid">
       <div class="contact-info-card reveal">
-        <div class="contact-info-item">
+        <a class="contact-info-item" href="mailto:profeesional.id03@gmail.com" aria-label="Email">
           <span class="contact-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#0A0F1F" stroke-width="2"><path d="M3 6h18v12H3z"/><path d="M3 6l9 7 9-7"/></svg></span>
-          <div><strong>Email</strong><span><a href="mailto:profeesional.id03@gmail.com" style="color:var(--light);">profeesional.id03@gmail.com</a></span></div>
-        </div>
-        <div class="contact-info-item">
+          <span class="contact-link-text">profeesional.id03@gmail.com</span>
+        </a>
+        <a class="contact-info-item" href="tel:+918849770375" aria-label="Call">
           <span class="contact-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#0A0F1F" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.362 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.338 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg></span>
-          <div><strong>Phone</strong><span><a href="tel:+918849770375" style="color:var(--light);">+91 88497 70375</a></span></div>
-        </div>
-        <div class="contact-info-item">
+          <span class="contact-link-text">+91 88497 70375</span>
+        </a>
+        <a class="contact-info-item" href="https://linkedin.com/in/dev-prajapati17" target="_blank" rel="noopener" aria-label="LinkedIn">
           <span class="contact-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#0A0F1F" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 10v7M7 7v.01M12 17v-4a2 2 0 0 1 4 0v4M12 13v4"/></svg></span>
-          <div><strong>LinkedIn</strong><span><a href="https://linkedin.com/in/dev-prajapati17" target="_blank" rel="noopener" style="color:var(--light);">linkedin.com/in/dev-prajapati17</a></span></div>
-        </div>
-        <div class="contact-info-item">
+          <span class="contact-link-text">linkedin.com/in/dev-prajapati17</span>
+        </a>
+        <a class="contact-info-item" href="https://www.instagram.com/dataclean_xl?igsh=Z3E4djdxYTUzdzI5" target="_blank" rel="noopener" aria-label="Instagram">
           <span class="contact-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#0A0F1F" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="#0A0F1F" stroke="none"/></svg></span>
-          <div><strong>Instagram</strong><span><a href="https://www.instagram.com/dataclean_xl?igsh=Z3E4djdxYTUzdzI5" target="_blank" rel="noopener" style="color:var(--light);">@dataclean_xl</a></span></div>
-        </div>
+          <span class="contact-link-text">@dataclean_xl</span>
+        </a>
       </div>
       <form class="contact-form reveal" id="contactForm" novalidate>
         <div class="form-row" id="row-name">
@@ -1915,6 +1951,7 @@
           <label for="fservice">Service Required</label>
           <select id="fservice" name="fservice">
             <option value="">Select a service</option>
+            <option>Other</option>
             <option>Data Entry</option>
             <option>Data Cleaning</option>
             <option>Excel Formatting</option>
@@ -2155,40 +2192,7 @@
     {title:'Client Satisfaction', desc:'Revisions included until it fits your workflow.'}
   ];
 
-  const reviews = [
-    {name:'Rajesh Mehta', platform:'Google', quote:'The dashboard Dev built cut our monthly reporting time from two days to twenty minutes. It just works.', stars:5},
-    {name:'Priya Sharma', platform:'LinkedIn', quote:'Clear communication and a genuinely well-structured spreadsheet. Our budget tracking finally makes sense.', stars:5},
-    {name:'Amit Verma', platform:'Fiverr', quote:'The inventory system with automated reorder alerts saved us from multiple stock-outs. Highly recommend.', stars:5},
-    {name:'Sophie Turner', platform:'Upwork', quote:'Delivered ahead of schedule and explained every formula clearly. Will hire again for future Excel work.', stars:5},
-    {name:'Karan Patel', platform:'Google', quote:'Great VBA automation work — saved our team hours of repetitive data entry every week.', stars:4},
-    {name:'Neha Joshi', platform:'Website', quote:'Very responsive and patient with revisions. The final dashboard looked exactly how we imagined it.', stars:5},
-    {name:'Ritika Shah', platform:'Fiverr', quote:'Cleaned up a huge messy customer list in no time. Formulas were solid and well documented.', stars:5},
-    {name:'David Miller', platform:'Upwork', quote:'Professional, fast, and easy to work with. The pivot table report made our sales review so much clearer.', stars:5},
-    {name:'Ananya Iyer', platform:'Google', quote:'Turned a spreadsheet mess into something my whole team can actually use. Very impressed.', stars:5},
-    {name:'Vikram Nair', platform:'LinkedIn', quote:'Solid grasp of Excel formatting and conditional rules. Made our reports look genuinely professional.', stars:4},
-    {name:'Emma Wilson', platform:'Fiverr', quote:'Great value for the price. Quick turnaround on a fairly complex dashboard request.', stars:5},
-    {name:'Rohan Deshmukh', platform:'Website', quote:'Automated a report that used to take me half a day. Now it runs in a couple of clicks.', stars:5},
-    {name:'Sneha Kulkarni', platform:'Google', quote:'Patient with all my questions and delivered exactly what I asked for, on time.', stars:5},
-    {name:'James Anderson', platform:'Upwork', quote:'Excellent Power Query setup. My monthly data refresh is now completely automated.', stars:5},
-    {name:'Pooja Reddy', platform:'Fiverr', quote:'Communication was smooth throughout. The finished workbook was clean and easy to navigate.', stars:4},
-    {name:'Arjun Malhotra', platform:'LinkedIn', quote:'Helped restructure our entire budget tracker. Genuinely made our finance workflow faster.', stars:5},
-    {name:'Isabella Garcia', platform:'Website', quote:'Really impressed with the attention to detail on the formatting and layout.', stars:5},
-    {name:'Manish Agarwal', platform:'Google', quote:'Fixed formulas that had been broken for months. Quick to understand the problem and solve it.', stars:5},
-    {name:'Kavya Menon', platform:'Fiverr', quote:'The Excel template he built for us is now used across the whole department.', stars:5},
-    {name:'Thomas Brown', platform:'Upwork', quote:'Reliable and knowledgeable. Delivered a working VBA macro exactly as specced.', stars:4},
-    {name:'Divya Krishnan', platform:'Website', quote:'Great experience overall — friendly, professional, and genuinely good at what he does.', stars:5},
-    {name:'Aditya Rao', platform:'Google', quote:'Our attendance tracker used to be a nightmare. Now it calculates everything automatically.', stars:5},
-    {name:'Olivia Martinez', platform:'LinkedIn', quote:'Very clear about timelines and delivered right on schedule. Would recommend to any small business.', stars:5},
-    {name:'Siddharth Bansal', platform:'Fiverr', quote:'Handled a large messy dataset with ease. Cleaned and organized exactly how I needed it.', stars:5},
-    {name:'Meera Pillai', platform:'Website', quote:'Great at explaining the "why" behind each formula, not just handing over a finished file.', stars:5},
-    {name:'Michael Lee', platform:'Upwork', quote:'Good work on the financial dashboard. A couple of revisions but handled them quickly.', stars:4},
-    {name:'Tanvi Joshi', platform:'Google', quote:'Exactly the kind of Excel help small businesses need. Straightforward and effective.', stars:5},
-    {name:'Harshad Bhatt', platform:'Fiverr', quote:'Built a clean pivot-based sales summary for us in under two days. Great communication throughout.', stars:5},
-    {name:'Grace Kim', platform:'Upwork', quote:'Reformatted a huge financial statement into something readable and presentable. Very happy with it.', stars:5},
-    {name:'Ishaan Chopra', platform:'Website', quote:'Quick, professional, and honestly better documented than what we had before. Great work.', stars:5},
-    {name:'Lauren Scott', platform:'LinkedIn', quote:'Helped us set up recurring reports we now rely on every week. Would definitely work with him again.', stars:4},
-    {name:'Yash Trivedi', platform:'Google', quote:'Great with Google Sheets too, not just Excel. Solved a formula issue our old freelancer could not.', stars:5}
-  ];
+  let reviews = []; // filled from the reviews database (Google Sheet) — nothing is stored in this file
 
   /* ---------- RENDER: SERVICES ---------- */
   const servicesGrid = document.getElementById('servicesGrid');
@@ -2411,18 +2415,15 @@
     Website:  {dot:'W',  color:'var(--purple)'}
   };
 
-  const REVIEWS_KEY = 'devExcelReviews';
-  function loadStoredReviews(){
-    try{
-      const raw = localStorage.getItem(REVIEWS_KEY);
-      return raw ? JSON.parse(raw) : [];
-    }catch(e){ return []; }
-  }
-  function saveStoredReviews(list){
-    try{ localStorage.setItem(REVIEWS_KEY, JSON.stringify(list)); }catch(e){}
-  }
+  // ===== Reviews live OUTSIDE this file (in a Google Sheet, via Google Apps Script) =====
+  // So re-uploading / updating index.html never deletes real reviews.
+  // After deploying reviews-apps-script.gs, paste the Web App URL (ends with /exec) between the quotes.
+  const REVIEWS_API_URL = '';
+  const ALLOWED_PLATFORMS = ['Google','Fiverr','Upwork','LinkedIn','Website'];
+  // Older versions kept test reviews inside each visitor's browser — clear those so nothing stale shows.
+  try{ localStorage.removeItem('devExcelReviews'); }catch(e){}
 
-  let storedReviews = loadStoredReviews();
+  let reviewsState = REVIEWS_API_URL ? 'loading' : 'ready';   // loading | ready | error
   let reviewsExpanded = false;
   const REVIEWS_COLLAPSED_COUNT = 6;
 
@@ -2435,7 +2436,7 @@
   const reviewsToggleBtn = document.getElementById('reviewsToggleBtn');
 
   function renderReviews(){
-    const all = [...reviews, ...storedReviews];
+    const all = reviews;
     const count = all.length;
     const avg = count ? all.reduce((sum,r)=> sum + r.stars, 0) / count : 0;
     const avgRounded = Math.round(avg * 10) / 10;
@@ -2443,8 +2444,10 @@
 
     avgRatingNum.textContent = avgRounded.toFixed(1);
     avgRatingStars.textContent = '★'.repeat(avgStarsFilled) + '☆'.repeat(5 - avgStarsFilled);
-    avgRatingCount.textContent = `Based on ${count} review${count===1?'':'s'}`;
-    reviewCountLabel.textContent = `${count} review${count===1?'':'s'} across Google, Fiverr, Upwork, LinkedIn & this website`;
+    avgRatingCount.textContent = count ? `Based on ${count} review${count===1?'':'s'}` : 'No reviews yet';
+    reviewCountLabel.textContent = count ? `${count} review${count===1?'':'s'} across Google, Fiverr, Upwork, LinkedIn & this website` : '';
+    const summaryEl = document.querySelector('.review-summary');
+    if(summaryEl) summaryEl.style.display = count ? '' : 'none';
 
     const starCounts = [5,4,3,2,1].map(star => all.filter(r => r.stars === star).length);
     reviewBars.innerHTML = [5,4,3,2,1].map((star,i) => {
@@ -2457,19 +2460,27 @@
         </div>`;
     }).join('');
 
+    const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
     const ordered = all.slice().reverse();
+    if(reviewsState === 'loading'){
+      reviewsGrid.innerHTML = '<div class="reviews-empty">Loading reviews…</div>';
+    } else if(reviewsState === 'error'){
+      reviewsGrid.innerHTML = '<div class="reviews-empty">Reviews couldn’t be loaded right now. Please try again in a little while.</div>';
+    } else if(!count){
+      reviewsGrid.innerHTML = '<div class="reviews-empty">No reviews yet. Be the first to share your experience — click “Write a Review” above.</div>';
+    } else
     reviewsGrid.innerHTML = ordered.map((r,i) => {
       const meta = platformMeta[r.platform] || platformMeta.Website;
       const hidden = (!reviewsExpanded && i >= REVIEWS_COLLAPSED_COUNT) ? 'true' : 'false';
       return `
         <div class="review-card ${r.isNew?'is-new':''}" data-hidden="${hidden}">
           <div class="review-card-top">
-            <span class="platform-pill"><span class="platform-dot" style="background:${meta.color};">${meta.dot}</span>${r.platform}</span>
+            <span class="platform-pill"><span class="platform-dot" style="background:${meta.color};">${meta.dot}</span>${esc(r.platform)}</span>
             ${r.isNew?'<span class="new-badge">NEW</span>':''}
           </div>
           <div class="stars">${'★'.repeat(r.stars)}${'☆'.repeat(5-r.stars)}</div>
-          <p class="review-quote">"${r.quote}"</p>
-          <div class="review-foot"><span class="review-name">${r.name}</span></div>
+          <p class="review-quote">"${esc(r.quote)}"</p>
+          <div class="review-foot"><span class="review-name">${esc(r.name)}</span></div>
         </div>`;
     }).join('');
 
@@ -2481,6 +2492,30 @@
     }
   }
 
+  function normalizeReview(r){
+    const stars = Math.round(Number(r && r.stars));
+    const name = String((r && r.name) || '').trim().slice(0,60);
+    const quote = String((r && r.quote) || '').trim().slice(0,600);
+    if(!(stars >= 1 && stars <= 5) || !name || !quote) return null;
+    const platform = ALLOWED_PLATFORMS.includes(r.platform) ? r.platform : 'Website';
+    return {name, quote, stars, platform};
+  }
+  async function loadReviews(){
+    if(!REVIEWS_API_URL){ reviews = []; reviewsState = 'ready'; renderReviews(); return; }
+    reviewsState = 'loading'; renderReviews();
+    try{
+      const sep = REVIEWS_API_URL.includes('?') ? '&' : '?';
+      const res = await fetch(`${REVIEWS_API_URL}${sep}action=list&t=${Date.now()}`, {cache:'no-store'});
+      if(!res.ok) throw new Error('HTTP ' + res.status);
+      const data = await res.json();
+      reviews = (Array.isArray(data.reviews) ? data.reviews : []).map(normalizeReview).filter(Boolean);
+      reviewsState = 'ready';
+    }catch(err){
+      reviews = []; reviewsState = 'error';
+    }
+    renderReviews();
+  }
+
   reviewsToggleBtn.addEventListener('click', ()=>{
     reviewsExpanded = !reviewsExpanded;
     renderReviews();
@@ -2488,7 +2523,7 @@
       document.getElementById('reviews').scrollIntoView({behavior:'smooth', block:'start'});
     }
   });
-  renderReviews();
+  loadReviews();
 
   /* ---------- Write a Review: toggle, star picker, submit ---------- */
   const toggleReviewForm = document.getElementById('toggleReviewForm');
@@ -2513,7 +2548,8 @@
 
   const reviewForm = document.getElementById('reviewForm');
   const reviewSuccess = document.getElementById('reviewSuccess');
-  reviewForm.addEventListener('submit', e=>{
+  const reviewError = document.getElementById('reviewError');
+  reviewForm.addEventListener('submit', async e=>{
     e.preventDefault();
     let valid = true;
     const rname = document.getElementById('rname');
@@ -2528,34 +2564,71 @@
     setInvalid('rrow-rating', selectedRating === 0);
     setInvalid('rrow-text', rtext.value.trim().length < 10);
 
+    reviewError.classList.remove('show');
     if(!valid){
       reviewSuccess.classList.remove('show');
       return;
     }
 
-    storedReviews.push({
-      name: rname.value.trim(),
-      platform: rplatform.value,
-      quote: rtext.value.trim(),
+    const payload = {
+      name: rname.value.trim().slice(0,60),
+      platform: ALLOWED_PLATFORMS.includes(rplatform.value) ? rplatform.value : 'Website',
       stars: selectedRating,
-      isNew: true
-    });
-    saveStoredReviews(storedReviews);
-    renderReviews();
+      quote: rtext.value.trim().slice(0,600),
+      company: (document.getElementById('rcompany') || {}).value || ''   // hidden spam trap
+    };
 
-    reviewSuccess.classList.add('show');
-    reviewForm.reset();
-    selectedRating = 0;
-    starPicker.querySelectorAll('button').forEach(b=> b.classList.remove('filled'));
-    document.querySelectorAll('#reviewForm .form-row').forEach(r=> r.classList.remove('invalid'));
+    function finish(message, closeAfter){
+      reviewSuccess.textContent = message;
+      reviewSuccess.classList.add('show');
+      reviewForm.reset();
+      selectedRating = 0;
+      starPicker.querySelectorAll('button').forEach(b=> b.classList.remove('filled'));
+      document.querySelectorAll('#reviewForm .form-row').forEach(r=> r.classList.remove('invalid'));
+      setTimeout(()=>{
+        reviewSuccess.classList.remove('show');
+        writeReviewPanel.classList.remove('open');
+        toggleReviewForm.textContent = 'Write a Review';
+        reviewsGrid.scrollIntoView({behavior:'smooth', block:'start'});
+      }, closeAfter);
+    }
 
-    setTimeout(()=>{
+    // Bots fill the hidden field: pretend success, send nothing.
+    if(payload.company){ finish('✓ Thanks for your review!', 1800); return; }
+
+    const submitBtn = reviewForm.querySelector('button[type="submit"]');
+    const label = submitBtn.textContent;
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Submitting...';
+    try{
+      let approved = false;
+      if(REVIEWS_API_URL){
+        const res = await fetch(REVIEWS_API_URL, {method:'POST', body: JSON.stringify(payload)});
+        let data = null;
+        try{ data = await res.json(); }catch(_){}
+        if(!res.ok || !data || data.ok !== true) throw new Error((data && data.error) || 'Submit failed');
+        approved = !!data.approved;
+      } else {
+        // Reviews database not connected yet: email the review to the owner so it is never lost.
+        const res = await fetch(FORMSPREE_ENDPOINT, {
+          method:'POST',
+          headers:{'Accept':'application/json','Content-Type':'application/json'},
+          body: JSON.stringify({
+            subject: `New review (${payload.stars}/5) from ${payload.name}`,
+            name: payload.name, platform: payload.platform, rating: payload.stars, message: payload.quote
+          })
+        });
+        if(!res.ok) throw new Error('Submit failed');
+      }
+      finish(approved ? '✓ Thanks! Your review is now live.' : '✓ Thanks! Your review has been submitted and will appear after approval.', 3200);
+      if(approved) loadReviews();
+    }catch(err){
       reviewSuccess.classList.remove('show');
-      writeReviewPanel.classList.remove('open');
-      toggleReviewForm.textContent = 'Write a Review';
-      const grid = document.getElementById('reviewsGrid');
-      if(grid) grid.scrollIntoView({behavior:'smooth', block:'start'});
-    }, 1800);
+      reviewError.classList.add('show');
+    }finally{
+      submitBtn.disabled = false;
+      submitBtn.textContent = label;
+    }
   });
 
   /* ---------- NAV: smooth scroll + active highlight + mobile ---------- */
@@ -2567,9 +2640,11 @@
     navToggle.setAttribute('aria-expanded', open);
   });
 
+  let lockedNavId = null, navLockTimer = null;
   function scrollToSection(sel){
     const target = document.querySelector(sel);
     if(!target) return;
+    lockNav(sel.replace('#',''));
     const y = target.getBoundingClientRect().top + window.scrollY - 84;
     window.scrollTo({top:y, behavior:'smooth'});
     navLinks.classList.remove('open');
@@ -2587,19 +2662,41 @@
     });
   });
 
-  const sections = document.querySelectorAll('section[id]');
+  // Scroll-spy: the active nav link is the last section whose top has passed a fixed line
+  // just under the sticky header. Clicking a link highlights it immediately and holds it
+  // until the smooth scroll finishes, so the highlight never jumps to a neighbouring section.
+  const spySections = document.querySelectorAll('section');
   const navAnchors = document.querySelectorAll('.nav-link');
-  const sectionObserver = new IntersectionObserver((entries)=>{
-    entries.forEach(entry=>{
-      if(entry.isIntersecting){
-        const id = entry.target.getAttribute('id');
-        navAnchors.forEach(a=>{
-          a.classList.toggle('active', a.getAttribute('href') === '#'+id);
-        });
-      }
+  const SPY_LINE = 150;
+  function setActiveNav(id){
+    navAnchors.forEach(a=> a.classList.toggle('active', !!id && a.getAttribute('href') === '#'+id));
+  }
+  function updateActiveNav(){
+    if(lockedNavId){ setActiveNav(lockedNavId); return; }
+    let currentId = null;
+    spySections.forEach(sec=>{
+      if(sec.getBoundingClientRect().top <= SPY_LINE) currentId = sec.id || null;
     });
-  }, {rootMargin:'-40% 0px -50% 0px', threshold:0});
-  sections.forEach(s=> sectionObserver.observe(s));
+    if(window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4) currentId = 'contact';
+    setActiveNav(currentId);
+  }
+  function releaseNavLock(){ lockedNavId = null; updateActiveNav(); }
+  function lockNav(id){
+    lockedNavId = id;
+    setActiveNav(id);
+    clearTimeout(navLockTimer);
+    navLockTimer = setTimeout(releaseNavLock, 300);
+  }
+  let spyTicking = false;
+  window.addEventListener('scroll', ()=>{
+    if(lockedNavId){ clearTimeout(navLockTimer); navLockTimer = setTimeout(releaseNavLock, 160); }
+    if(spyTicking) return;
+    spyTicking = true;
+    requestAnimationFrame(()=>{ updateActiveNav(); spyTicking = false; });
+  }, {passive:true});
+  window.addEventListener('resize', updateActiveNav);
+  window.addEventListener('load', updateActiveNav);
+  updateActiveNav();
 
   /* ---------- Back to top ---------- */
   const backToTop = document.getElementById('backToTop');
@@ -2613,9 +2710,10 @@
     entries.forEach(entry=>{
       if(entry.isIntersecting){
         entry.target.classList.add('in');
+        revealObserver.unobserve(entry.target);
       }
     });
-  }, {threshold:0.15});
+  }, {threshold:0, rootMargin:'0px 0px -6% 0px'});
   document.querySelectorAll('.reveal').forEach(el=> revealObserver.observe(el));
 
   function animateCounter(el){
