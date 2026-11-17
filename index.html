@@ -2419,7 +2419,7 @@
   // ===== Reviews live OUTSIDE this file (in a Google Sheet, via Google Apps Script) =====
   // So re-uploading / updating index.html never deletes real reviews.
   // After deploying reviews-apps-script.gs, paste the Web App URL (ends with /exec) between the quotes.
-  const REVIEWS_API_URL = '';
+  const REVIEWS_API_URL = 'https://script.google.com/macros/s/AKfycbwzRPamV69mJiTfnvrYcpkf1XJlgQGOgeu7Tu-xlRFACyck7v5zaCEHkNULnaFatZYJDg/exec';
   const ALLOWED_PLATFORMS = ['Google','Fiverr','Upwork','LinkedIn','Website'];
   // Older versions kept test reviews inside each visitor's browser — clear those so nothing stale shows.
   try{ localStorage.removeItem('devExcelReviews'); }catch(e){}
